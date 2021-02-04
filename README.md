@@ -14,6 +14,8 @@ and then run the
 script [dataset_builder.py](https://github.com/pistocop/reddit-downloader/blob/main/src/dataset_builder.py) for create a
 unique dataset.
 
+More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/).
+
 ## :rocket: Usage
 
 Basic usage to download submissions and relative comments from
