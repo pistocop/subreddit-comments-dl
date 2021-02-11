@@ -8,10 +8,10 @@
 
 
 Use the
-script [subreddit_downloader.py](https://github.com/pistocop/reddit-downloader/blob/main/src/subreddit_downloader.py)
+script [subreddit_downloader.py](https://github.com/pistocop/subreddit-comments-dlr/blob/main/src/subreddit_downloader.py)
 multiple times to download the data, <br>
 and then run the
-script [dataset_builder.py](https://github.com/pistocop/reddit-downloader/blob/main/src/dataset_builder.py) for create a
+script [dataset_builder.py](https://github.com/pistocop/subreddit-comments-dl/blob/main/src/dataset_builder.py) for create a
 unique dataset.
 
 🖱 More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/).
