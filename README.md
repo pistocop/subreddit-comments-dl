@@ -49,7 +49,7 @@ python src/dataset_builder.py
 ## :arrow_down: Output
 A new folder with two csv files are created from `dataset_builder.py`, they have the following structure:
 
-**comments.csv**
+#### comments.csv
 Each row is a comment under a submission of a specific subreddit.
 
 | Column name | Description                          | Example                                                                          |
@@ -61,7 +61,7 @@ Each row is a comment under a submission of a specific subreddit.
 | parent_id   | Id of the parent in a tree structure | t3_lhssi4                                                                        |
 | permalink   | Reddit unique link to the comment    | /r/news/comments/lhssi4/air_force_wants_to_know_if_key_pacific_airfield/gmz45xo/ |
 
-**submissions.csv**
+#### submissions.csv
 Each row is a submission of a specific subreddit.
 
 | Column name | Description                          | Example                                                                |
