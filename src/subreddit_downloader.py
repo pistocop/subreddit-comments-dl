@@ -99,18 +99,19 @@ def dictlist_to_csv(file_path: str, dictionaries_list: List[dict]):
 def init_locals(debug: str,
                 output_dir: str,
                 subreddit: str,
-                utc_after: str,
-                utc_before: str,
+                utc_upper_bound: str,
+                utc_lower_bound: str,
                 run_args: dict,
                 ) -> (str, OutputManager):
-    assert not (utc_after and utc_before), "`utc_before` and `utc_after` parameters are in mutual exclusion"
+    assert not (utc_upper_bound and utc_lower_bound), "`utc_lower_bound` and " \
+                                                      "`utc_upper_bound` parameters are in mutual exclusion"
     run_args.pop("reddit_secret")
 
     if not debug:
         logger.remove()
         logger.add(sys.stderr, level="INFO")
 
-    direction = "after" if utc_after else "before"
+    direction = "after" if utc_upper_bound else "before"
     output_manager = OutputManager(output_dir, subreddit)
 
     output_manager.store_params(run_args)
@@ -133,22 +134,22 @@ def init_clients(reddit_id: str,
 
 
 def utc_range_calculator(utc_received: int,
-                         utc_after: int,
-                         utc_before: int
+                         utc_upper_bound: int,
+                         utc_lower_bound: int
                          ) -> (int, int):
     """
     Calculate the max UTC range seen.
 
-    Increase/decrease utc_after/utc_before according with utc_received value
+    Increase/decrease utc_upper_bound/utc_lower_bound according with utc_received value
     """
-    if not utc_after or not utc_before:
-        utc_after = utc_received
-        utc_before = utc_received
+    if not utc_upper_bound or not utc_lower_bound:
+        utc_upper_bound = utc_received
+        utc_lower_bound = utc_received
 
-    utc_before = utc_before if utc_received > utc_before else utc_received
-    utc_after = utc_after if utc_received < utc_after else utc_received
+    utc_lower_bound = utc_lower_bound if utc_received > utc_lower_bound else utc_received
+    utc_upper_bound = utc_upper_bound if utc_received < utc_upper_bound else utc_received
 
-    return utc_after, utc_before
+    return utc_lower_bound, utc_upper_bound
 
 
 def comments_fetcher(sub, output_manager, reddit_api):
@@ -219,7 +220,7 @@ def main(subreddit: str = Argument(..., help=HelpMessages.subreddit),
          reddit_id: str = Option(..., help=HelpMessages.reddit_id),
          reddit_secret: str = Option(..., help=HelpMessages.reddit_secret),
          reddit_username: str = Option(..., help=HelpMessages.reddit_username),
-         utc_after: Optional[str] = Option(None, help=HelpMessages.utc_after),
+         utc_after: Optional[str] = Option(None, help=HelpMessages.utc_before),
          utc_before: Optional[str] = Option(None, help=HelpMessages.utc_before),
          debug: bool = Option(False, help=HelpMessages.debug),
          ):
@@ -228,33 +229,42 @@ def main(subreddit: str = Argument(..., help=HelpMessages.subreddit),
     """
 
     # Init
-    direction, out_manager = init_locals(debug, output_dir, subreddit, utc_after, utc_before, run_args=locals())
+    utc_upper_bound = utc_after
+    utc_lower_bound = utc_before
+    direction, out_manager = init_locals(debug,
+                                         output_dir,
+                                         subreddit,
+                                         utc_upper_bound,
+                                         utc_lower_bound,
+                                         run_args=locals())
     pushshift_api, reddit_api = init_clients(reddit_id, reddit_secret, reddit_username)
     logger.info(f"Start download: "
-                f"UTC range: [{utc_before}, {utc_after}], "
+                f"UTC range: [{utc_lower_bound}, {utc_upper_bound}], "
                 f"direction: `{direction}`, "
                 f"batch size: {batch_size}, "
                 f"total submissions to fetch: {batch_size * laps}")
 
     # Start the gathering
     for lap in range(laps):
+        logger.debug(f"New lap start: {lap}")
         lap_message = f"Lap {lap}/{laps} completed in ""{minutes:.1f}m | " \
                       f"[new/tot]: {len(out_manager.comments_list)}/{out_manager.total_comments_counter}"
-        with Timer(text=lap_message, logger=logger.info):
 
+        with Timer(text=lap_message, logger=logger.info):
             # Reset the data already stored
             out_manager.reset_lists()
 
             # Fetch data in the `direction` way
             submissions_generator = pushshift_api.search_submissions(subreddit=subreddit,
                                                                      limit=batch_size,
-                                                                     sort='desc',
+                                                                     sort='desc' if direction == "before" else 'asc',
                                                                      sort_type='created_utc',
-                                                                     after=utc_after if direction == "after" else None,
-                                                                     before=utc_before if direction == "before" else None,
+                                                                     after=utc_upper_bound if direction == "after" else None,
+                                                                     before=utc_lower_bound if direction == "before" else None,
                                                                      )
 
             for sub in submissions_generator:
+                logger.debug(f"New submission - created_utc: {sub.created_utc}")
                 # Fetch the submission data
                 submission_fetcher(sub, out_manager)
 
@@ -262,15 +272,18 @@ def main(subreddit: str = Argument(..., help=HelpMessages.subreddit),
                 comments_fetcher(sub, out_manager, reddit_api)
 
                 # Calculate the UTC seen range
-                utc_after, utc_before = utc_range_calculator(sub.created_utc, utc_after, utc_before)
-
+                utc_lower_bound, utc_upper_bound = utc_range_calculator(sub.created_utc,
+                                                                        utc_upper_bound,
+                                                                        utc_lower_bound)
             # Store data (submission and comments)
             out_manager.store(lap)
 
-        logger.debug(f"utc_after: {utc_after} , utc_before: {utc_before}")
-    out_manager.store_utc_params(utc_newer=utc_after, utc_older=utc_before)
+            # Check the bounds
+            assert utc_lower_bound < utc_upper_bound, f"utc_lower_bound '{utc_lower_bound}' should be " \
+                                                      f"less than utc_upper_bound '{utc_upper_bound}'"
+        logger.debug(f"utc_upper_bound: {utc_upper_bound} , utc_lower_bound: {utc_lower_bound}")
 
-    assert utc_before < utc_after, f"utc_before '{utc_before}' should be less than utc_after '{utc_after}'"
+    out_manager.store_utc_params(utc_newer=utc_upper_bound, utc_older=utc_lower_bound)
     logger.info(f"Stop download: lap {laps}/{laps} [total]: {out_manager.total_comments_counter}")
 
 
