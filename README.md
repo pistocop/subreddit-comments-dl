@@ -27,7 +27,7 @@ pip install -r requirements.txt
 python src/subreddit_downloader.py AskReddit --batch-size 10 --laps 3 --reddit-id <reddit_id> --reddit-secret <reddit_secret> --reddit-username <reddit_username>
 
 # Download the News comments after 1 January 2021
-python src/subreddit_downloader.py AskReddit --batch-size 512 --laps 3 --reddit-id <reddit_id> --reddit-secret <reddit_secret> --reddit-username <reddit_username> --utc-after 1609459200
+python src/subreddit_downloader.py News --batch-size 512 --laps 3 --reddit-id <reddit_id> --reddit-secret <reddit_secret> --reddit-username <reddit_username> --utc-after 1609459200
 
 # Build the dataset and check the results under `./dataset/` path
 python src/dataset_builder.py 
