@@ -8,8 +8,9 @@
 
 
 Use the
-script [subreddit_downloader.py](https://github.com/pistocop/subreddit-comments-dlr/blob/main/src/subreddit_downloader.py)
-multiple times to download the data and then run the script [dataset_builder.py](https://github.com/pistocop/subreddit-comments-dl/blob/main/src/dataset_builder.py) for create a unique dataset.
+script [subreddit_downloader.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/subreddit_downloader.py)
+multiple times to download the data.<br>
+Then run the script [dataset_builder.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/dataset_builder.py) for create a unique dataset.
 
 🖱 More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/).
 
