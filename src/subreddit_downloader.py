@@ -65,10 +65,13 @@ class OutputManager:
         dictlist_to_csv(join(self.submissions_output, f"{lap}.csv"), self.submissions_list)
         dictlist_to_csv(join(self.comments_output, f"{lap}.csv"), self.comments_list)
 
-        with open(join(self.sub_raw_output, f"{lap}.njson"), "a") as f:
-            f.write("\n".join(json.dumps(row) for row in self.submissions_raw_list))
-        with open(join(self.comments_raw_output, f"{lap}.njson"), "a") as f:
-            f.write("\n".join(json.dumps(r, default=lambda o: '<not serializable>') for r in self.comments_raw_list))
+        if len(self.submissions_raw_list) > 0:
+            with open(join(self.sub_raw_output, f"{lap}.njson"), "a") as f:
+                f.write("\n".join(json.dumps(row) for row in self.submissions_raw_list))
+        if len(self.comments_raw_list) > 0:
+            with open(join(self.comments_raw_output, f"{lap}.njson"), "a") as f:
+                f.write("\n".join(json.dumps(row, default=lambda o: '<not serializable>')
+                                  for row in self.comments_raw_list))
 
     def store_params(self, params: dict):
         with open(self.params_path, "w") as f:

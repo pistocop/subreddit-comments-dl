@@ -91,6 +91,7 @@ def csv_writer(csv_path: str, header: List[str], rows: List[List[str]]):
     skip_header = isfile(csv_path)  # If file already exist, don't write the header
 
     with open(csv_path, "a+", newline='') as f:
+        logger.debug(f"Storing data on '{csv_path}' - header:'{header}'")
         file_writer = csv.writer(f, dialect="excel")
         if not skip_header:
             file_writer.writerow(header)
@@ -105,6 +106,7 @@ def csv_reader(csv_path: str) -> Tuple[List[str], List[List[str]]]:
         for row_id, row in enumerate(file_reader):
             if row_id == 0:
                 header = row
+                logger.debug(f"File '{csv_path}' header: '{header}'")
                 continue
             rows.append(row)
     return header, rows
