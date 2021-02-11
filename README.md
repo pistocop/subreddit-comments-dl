@@ -1,10 +1,10 @@
-# subreddit-text-downloader
-
-> Download all the text comments from a subreddit
+# subreddit-comments-dl
 
 <a href="https://gitmoji.carloscuesta.me">
   <img src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square" alt="Gitmoji">
 </a>
+
+> Download all the text comments from a subreddit
 
 
 Use the
@@ -14,7 +14,7 @@ and then run the
 script [dataset_builder.py](https://github.com/pistocop/reddit-downloader/blob/main/src/dataset_builder.py) for create a
 unique dataset.
 
-More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/).
+🖱 More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/).
 
 ## :rocket: Usage
 
@@ -55,7 +55,7 @@ python src/dataset_builder.py
   submission has a tree of _comments_
 
 - _comment_: text wrote by a reddit user under a _submission_ inside a _subreddit_
-    - The main goal of this repository is sto gather the _comments_ belong to the _subreddit_
+    - The main goal of this repository is to gather the _comments_ belong to the _subreddit_
 
 ## :writing_hand: Notes
 
