@@ -26,10 +26,10 @@ pip install -r requirements.txt
 # Download the AskReddit comments of the last 30 submissions
 python src/subreddit_downloader.py AskReddit --batch-size 10 --laps 3 --reddit-id <reddit_id> --reddit-secret <reddit_secret> --reddit-username <reddit_username>
 
-# Download the News comments after 1 January 2021
-python src/subreddit_downloader.py News --batch-size 512 --laps 3 --reddit-id <reddit_id> --reddit-secret <reddit_secret> --reddit-username <reddit_username> --utc-after 1609459200
+# Download the News comments after 1 January 2020
+python src/subreddit_downloader.py News --batch-size 512 --laps 3 --reddit-id <reddit_id> --reddit-secret <reddit_secret> --reddit-username <reddit_username> --utc-after 1609459201
 
-# Build the dataset and check the results under `./dataset/` path
+# Build the dataset, the results will be under `./dataset/` path
 python src/dataset_builder.py 
 ```
 
@@ -44,6 +44,36 @@ python src/dataset_builder.py
 | `reddit_id` | The Client ID generated from the apps page | [Official guide](https://github.com/reddit-archive/reddit/wiki/OAuth2#authorization-implicit-grant-flow) | 40oK80pF8ac3Cn |
 | `reddit_secret` | The secret generated from the apps page | Copy the value as showed [here](https://github.com/reddit-archive/reddit/wiki/OAuth2#getting-started) | 9KEUOE7pi8dsjs9507asdeurowGCcg|
 | `reddit_username` | The reddit account name| The name you use for log in | pistoSniffer |
+
+
+## :arrow_down: Output
+A new folder with two csv files are created from `dataset_builder.py`, they have the following structure:
+
+**comments.csv**
+Each row is a comment under a submission of a specific subreddit.
+
+| Column name | Description                          | Example                                                                          |
+|-------------|--------------------------------------|----------------------------------------------------------------------------------|
+| subreddit   | Name of the subreddit                | News                                                                             |
+| id          | Unique identifier of the comment     | gmz45xo                                                                          |
+| body        | Text of the comment                  | We're past the point...                                                          |
+| created_utc | UTC when comment was created         | 1613072734                                                                       |
+| parent_id   | Id of the parent in a tree structure | t3_lhssi4                                                                        |
+| permalink   | Reddit unique link to the comment    | /r/news/comments/lhssi4/air_force_wants_to_know_if_key_pacific_airfield/gmz45xo/ |
+
+**submissions.csv**
+Each row is a submission of a specific subreddit.
+
+| Column name | Description                          | Example                                                                |
+|-------------|--------------------------------------|------------------------------------------------------------------------|
+| subreddit   | Name of the subreddit                | MTB                                                                    |
+| id          | Unique identifier of the submission  | lhr2bo                                                                 |
+| created_utc | UTC when submission was created      | 1613068060                                                             |
+| title       | Title of the submission              | Must ride So...                                                        |
+| selftext    | Text off the submission              | What are the best trails to ride in...                                 |
+| full_link   | Reddit unique link to the submission | https://www.reddit.com/r/MTB/comments/lhr2bo/must_ride_so_cali_trails/ |
+
+---
 
 ## :book: Glossary
 
