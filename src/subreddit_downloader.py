@@ -171,6 +171,7 @@ def comments_fetcher(sub, output_manager, reddit_api):
     for comment in comments:
         comment_useful_data = {
             "id": comment.id,
+            "submission_id": sub.id,
             "body": comment.body.replace('\n', '\\n'),
             "created_utc": int(comment.created_utc),
             "parent_id": comment.parent_id,
