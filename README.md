@@ -10,7 +10,9 @@
 Use the
 script [subreddit_downloader.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/subreddit_downloader.py)
 multiple times to download the data.<br>
-Then run the script [dataset_builder.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/dataset_builder.py) for create a unique dataset.
+Then run the
+script [dataset_builder.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/dataset_builder.py) for
+create a unique dataset.
 
 🖱 More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/).
 
@@ -45,24 +47,18 @@ python src/dataset_builder.py
 | `reddit_secret` | The secret generated from the apps page | Copy the value as showed [here](https://github.com/reddit-archive/reddit/wiki/OAuth2#getting-started) | 9KEUOE7pi8dsjs9507asdeurowGCcg|
 | `reddit_username` | The reddit account name| The name you use for log in | pistoSniffer |
 
-
 ## :arrow_down: Output
-A new folder with two csv files are created from `dataset_builder.py`, they have the following structure:
 
-#### comments.csv
-Each row is a comment under a submission of a specific subreddit.
+A new folder with two csv files are created from `dataset_builder.py`, the script have some features:
 
-| Column name | Description                          | Example                                                                          |
-|-------------|--------------------------------------|----------------------------------------------------------------------------------|
-| subreddit   | Name of the subreddit                | News                                                                             |
-| id          | Unique identifier of the comment     | gmz45xo                                                                          |
-| body        | Text of the comment                  | We're past the point...                                                          |
-| created_utc | UTC when comment was created         | 1613072734                                                                       |
-| parent_id   | Id of the parent in a tree structure | t3_lhssi4                                                                        |
-| permalink   | Reddit unique link to the comment    | /r/news/comments/lhssi4/air_force_wants_to_know_if_key_pacific_airfield/gmz45xo/ |
+- Remove rows with same `id`
+- Have a `caching_size` parameter to don't store all dataset in RAM
+
+They have the following structure:
 
 #### submissions.csv
-Each row is a submission of a specific subreddit.
+
+Each row is a submission of a specific subreddit and `id` field is unique across the dataset (PK).
 
 | Column name | Description                          | Example                                                                |
 |-------------|--------------------------------------|------------------------------------------------------------------------|
@@ -72,6 +68,20 @@ Each row is a submission of a specific subreddit.
 | title       | Title of the submission              | Must ride So...                                                        |
 | selftext    | Text off the submission              | What are the best trails to ride in...                                 |
 | full_link   | Reddit unique link to the submission | https://www.reddit.com/r/MTB/comments/lhr2bo/must_ride_so_cali_trails/ |
+
+#### comments.csv
+
+Each row is a comment under a submission of a specific subreddit and `id` field is unique across the dataset (PK).
+
+| Column name | Description                          | Example                                                                          |
+|-------------|--------------------------------------|----------------------------------------------------------------------------------|
+| subreddit   | Name of the subreddit                | News                                                                             |
+| id          | Unique identifier of the comment     | gmz45xo                                                                          |
+| submission_id | Id of the comment main submission  | lhr2bo                                                                          |
+| body        | Text of the comment                  | We're past the point...                                                          |
+| created_utc | UTC when comment was created         | 1613072734                                                                       |
+| parent_id   | Id of the parent in a tree structure | t3_lhssi4                                                                        |
+| permalink   | Reddit unique link to the comment    | /r/news/comments/lhssi4/air_force_wants_to_know_if_key_pacific_airfield/gmz45xo/ |
 
 ---
 
@@ -93,6 +103,8 @@ Each row is a submission of a specific subreddit.
     - With this approach we require fewer data to [pushshift](https://pushshift.io/api-parameters/)
     - Due to the usage of [praw](https://praw.readthedocs.io/en/latest/) API, the reddit credentials are required
 - More info about the `subreddit_downloader.py` script under the `--help` command:
+- Other packages:
+    - [psaw](https://github.com/dmarx/psaw): Python Pushshift.io API Wrapper
 
 ```bash
 python src/subreddit_downloader.py --help
@@ -149,3 +161,6 @@ Options:
 - [ ] store/log the utc and human datetime
 - [ ] use case: download all data from X datetime until now
     - [ ] early stopping if no new data fetched
+- [ ] refactory of `dataset_builder.py:_rows_parser`: find a more efficient approach to check `id` duplicates
+    - [ ] maybe switch to use pandas as matrix manager
+- [ ] should switch to use [psaw](https://github.com/dmarx/psaw)?

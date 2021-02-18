@@ -11,6 +11,7 @@ from typer import Option
 from datetime import datetime
 from pathlib import Path
 from typing import List
+from typing import Set
 from typing import Optional
 from typing import Tuple
 from tqdm import tqdm
@@ -24,6 +25,8 @@ class DatasetManager:
         self.submissions_rows = []
         self.total_comments = 0
         self.total_submissions = 0
+        self.comments_census_ids = set()
+        self.submissions_census_ids = set()
         self.subreddit_name = "undefined"
         self.output_path = output_path
         self.caching_size = caching_size
@@ -56,19 +59,34 @@ class DatasetManager:
         self.store_submissions()
         self.submissions_rows = []
 
-    def _enrich_rows(self, rows: List[List[str]]):
-        [row.insert(0, self.subreddit_name) for row in rows]  # In python List is passed by reference
+    def _rows_parser(self,
+                     rows: List[List[str]],
+                     census_ids: Set[str],
+                     header: List[str]):
+        # TODO find a more efficient way to store only unique `id`
+        rows_to_remove = []
+        for idx, row in enumerate(rows):
+            row.insert(0, self.subreddit_name)
+            row_values = dict(zip(header, row))
+            row_id = row_values["id"]
+            if row_id in census_ids:
+                logger.debug(f"Find duplicate id '{row_id}'")
+                rows_to_remove.append(idx)
+            census_ids.add(row_id)
+
+        for idx in sorted(rows_to_remove, reverse=True):  # https://stackoverflow.com/a/11303234
+            del rows[idx]
 
     def populate_comments(self, rows: List[List[str]]):
+        self._rows_parser(rows, self.comments_census_ids, self.comments_csv_header)
         self.total_comments += len(rows)
-        self._enrich_rows(rows)
         self.comments_rows.extend(rows)
         if len(self.comments_rows) > self.caching_size:
             self._flush_comments()
 
     def populate_submissions(self, rows: List[List[str]]):
+        self._rows_parser(rows, self.submissions_census_ids, self.submissions_csv_header)
         self.total_submissions += len(rows)
-        self._enrich_rows(rows)
         self.submissions_rows.extend(rows)
         if len(self.submissions_rows) > self.caching_size:
             self._flush_submissions()

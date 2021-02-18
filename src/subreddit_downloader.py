@@ -253,7 +253,7 @@ def main(subreddit: str = Argument(..., help=HelpMessages.subreddit),
         logger.debug(f"New lap start: {lap}")
         lap_message = f"Lap {lap}/{laps} completed in ""{minutes:.1f}m | " \
                       f"[new/tot]: {len(out_manager.comments_list)}/{out_manager.total_comments_counter}"
-
+        
         with Timer(text=lap_message, logger=logger.info):
             # Reset the data already stored
             out_manager.reset_lists()
