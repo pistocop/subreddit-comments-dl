@@ -14,7 +14,7 @@ Then run the
 script [dataset_builder.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/dataset_builder.py) for
 create a unique dataset.
 
-🖱 More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/).
+🖱 More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/) and [medium](https://towardsdatascience.com/how-download-subreddit-comments-f79557c99170).
 
 ## :rocket: Usage
 
