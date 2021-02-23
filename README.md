@@ -105,6 +105,11 @@ Each row is a comment under a submission of a specific subreddit and `id` field 
 - More info about the `subreddit_downloader.py` script under the `--help` command:
 - Other packages:
     - [psaw](https://github.com/dmarx/psaw): Python Pushshift.io API Wrapper
+- [?] Data empty CSV:
+    - Sometimes we have an empty csv under `/data/<subreddit>/<timestamp>/comments/xxx.csv`
+    - This behaviour is due of a batch of _submissions_ that don't have comments, you can check this opening the
+      `/data/<subreddit>/<timestamp>/submissions/xxx.csv` equivalent file (same `xxx.csv` name) and open the submission
+      link
 
 ```bash
 python src/subreddit_downloader.py --help
@@ -158,6 +163,7 @@ Options:
 
 **subreddit_downloader.py**
 
+- [ ] load user credentials in `subreddit_downloader.py` from local config file
 - [ ] store/log the utc and human datetime
 - [ ] use case: download all data from X datetime until now
     - [ ] early stopping if no new data fetched

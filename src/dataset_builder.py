@@ -63,9 +63,12 @@ class DatasetManager:
                      rows: List[List[str]],
                      census_ids: Set[str],
                      header: List[str]):
-        # TODO find a more efficient way to store only unique `id`
+        # TODO find a more efficient way to store only unique `id`,
+        #  maybe leveraging the Python set structure
         rows_to_remove = []
         for idx, row in enumerate(rows):
+            if not row:  # see README.md:notes:
+                continue
             row.insert(0, self.subreddit_name)
             row_values = dict(zip(header, row))
             row_id = row_values["id"]
@@ -108,7 +111,7 @@ def init(debug: bool):
 def csv_writer(csv_path: str, header: List[str], rows: List[List[str]]):
     skip_header = isfile(csv_path)  # If file already exist, don't write the header
 
-    with open(csv_path, "a+", newline='') as f:
+    with open(csv_path, "a+", newline='', encoding="utf-8") as f:
         logger.debug(f"Storing data on '{csv_path}' - header:'{header}'")
         file_writer = csv.writer(f, dialect="excel")
         if not skip_header:
@@ -119,7 +122,7 @@ def csv_writer(csv_path: str, header: List[str], rows: List[List[str]]):
 def csv_reader(csv_path: str) -> Tuple[List[str], List[List[str]]]:
     header = None
     rows = []
-    with open(csv_path, newline='') as csv_file:
+    with open(csv_path, newline='', encoding="utf-8") as csv_file:
         file_reader = csv.reader(csv_file, dialect="excel")
         for row_id, row in enumerate(file_reader):
             if row_id == 0:

@@ -66,19 +66,19 @@ class OutputManager:
         dictlist_to_csv(join(self.comments_output, f"{lap}.csv"), self.comments_list)
 
         if len(self.submissions_raw_list) > 0:
-            with open(join(self.sub_raw_output, f"{lap}.njson"), "a") as f:
+            with open(join(self.sub_raw_output, f"{lap}.njson"), "a", encoding="utf-8") as f:
                 f.write("\n".join(json.dumps(row) for row in self.submissions_raw_list))
         if len(self.comments_raw_list) > 0:
-            with open(join(self.comments_raw_output, f"{lap}.njson"), "a") as f:
+            with open(join(self.comments_raw_output, f"{lap}.njson"), "a", encoding="utf-8") as f:
                 f.write("\n".join(json.dumps(row, default=lambda o: '<not serializable>')
                                   for row in self.comments_raw_list))
 
     def store_params(self, params: dict):
-        with open(self.params_path, "w") as f:
+        with open(self.params_path, "w", encoding="utf-8") as f:
             yaml.dump(params, f)
 
     def load_params(self) -> dict:
-        with open(self.params_path, "r") as f:
+        with open(self.params_path, "r", encoding="utf-8") as f:
             params = yaml.load(f, yaml.FullLoader)
         return params
 
@@ -93,7 +93,7 @@ def dictlist_to_csv(file_path: str, dictionaries_list: List[dict]):
     if len(dictionaries_list) == 0:
         dictionaries_list = [{}]
     keys = dictionaries_list[0].keys()
-    with open(file_path, 'w', newline='') as output_file:
+    with open(file_path, 'w', newline='', encoding="utf-8") as output_file:
         dict_writer = csv.DictWriter(output_file, keys, dialect="excel")
         dict_writer.writeheader()
         dict_writer.writerows(dictionaries_list)
@@ -253,7 +253,7 @@ def main(subreddit: str = Argument(..., help=HelpMessages.subreddit),
         logger.debug(f"New lap start: {lap}")
         lap_message = f"Lap {lap}/{laps} completed in ""{minutes:.1f}m | " \
                       f"[new/tot]: {len(out_manager.comments_list)}/{out_manager.total_comments_counter}"
-        
+
         with Timer(text=lap_message, logger=logger.info):
             # Reset the data already stored
             out_manager.reset_lists()
