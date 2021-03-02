@@ -82,10 +82,13 @@ class OutputManager:
             params = yaml.load(f, yaml.FullLoader)
         return params
 
-    def store_utc_params(self, utc_older: int, utc_newer: int):
+    def enrich_and_store_params(self, utc_older: int, utc_newer: int):
         params = self.load_params()
         params["utc_older"] = utc_older
         params["utc_newer"] = utc_newer
+        params["total_comments_counter"] = self.total_comments_counter
+        params["total_submissions_counter"] = self.total_submissions_counter
+        params["total_counter"] = self.total_comments_counter + self.total_submissions_counter
         self.store_params(params)
 
 
@@ -287,7 +290,7 @@ def main(subreddit: str = Argument(..., help=HelpMessages.subreddit),
                                                       f"less than utc_upper_bound '{utc_upper_bound}'"
         logger.debug(f"utc_upper_bound: {utc_upper_bound} , utc_lower_bound: {utc_lower_bound}")
 
-    out_manager.store_utc_params(utc_newer=utc_upper_bound, utc_older=utc_lower_bound)
+    out_manager.enrich_and_store_params(utc_newer=utc_upper_bound, utc_older=utc_lower_bound)
     logger.info(f"Stop download: lap {laps}/{laps} [total]: {out_manager.total_comments_counter}")
 
 
