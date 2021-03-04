@@ -6,6 +6,7 @@ import yaml
 import typer
 from datetime import datetime
 
+# noinspection PyUnresolvedReferences
 import pretty_errors  # keep the import to have better error messages
 
 from os.path import join
@@ -158,7 +159,7 @@ def utc_range_calculator(utc_received: int,
     return utc_lower_bound, utc_upper_bound
 
 
-def comments_fetcher(sub, output_manager, reddit_api):
+def comments_fetcher(sub, output_manager, reddit_api, comments_cap):
     """
     Comments fetcher
     Get all comments with depth-first approach
@@ -166,9 +167,10 @@ def comments_fetcher(sub, output_manager, reddit_api):
     """
     try:
         submission_rich_data = reddit_api.submission(id=sub.id)
-        submission_rich_data.comments.replace_more(limit=None)
+        logger.debug(f"Requesting {submission_rich_data.num_comments} comments...")
+        submission_rich_data.comments.replace_more(limit=comments_cap)
         comments = submission_rich_data.comments.list()
-    except NotFound:  # Submission found on pushshift but not in praw
+    except NotFound:
         logger.warning(f"Submission not found in PRAW: `{sub.id}` - `{sub.title}` - `{sub.full_link}`")
         return
     for comment in comments:
@@ -205,6 +207,7 @@ def submission_fetcher(sub, output_manager: OutputManager):
 class HelpMessages:
     help_reddit_url = "https://github.com/reddit-archive/reddit/wiki/OAuth2"
     help_reddit_agent_url = "https://github.com/reddit-archive/reddit/wiki/API"
+    help_praw_replace_more_url = "https://asyncpraw.readthedocs.io/en/latest/code_overview/other/commentforest.html#asyncpraw.models.comment_forest.CommentForest.replace_more"
 
     subreddit = "The subreddit name"
     output_dir = "Optional output directory"
@@ -216,6 +219,10 @@ class HelpMessages:
     utc_after = "Fetch the submissions after this UTC date"
     utc_before = "Fetch the submissions before this UTC date"
     debug = "Enable debug logging"
+    comments_cap = f"Some submissions have 10k> nested comments and stuck the praw API call." \
+                   f"If provided, the system requires new comments `comments_cap` times to the praw API." \
+                   f"`comments_cap` under the hood will be passed directly to `replace_more` function as " \
+                   f"`limit` parameter. For more info see the README and visit {help_praw_replace_more_url}."
 
 
 # noinspection PyTypeChecker
@@ -229,6 +236,7 @@ def main(subreddit: str = Argument(..., help=HelpMessages.subreddit),
          reddit_username: str = Option(..., help=HelpMessages.reddit_username),
          utc_after: Optional[str] = Option(None, help=HelpMessages.utc_before),
          utc_before: Optional[str] = Option(None, help=HelpMessages.utc_before),
+         comments_cap: Optional[int] = Option(None, help=HelpMessages.comments_cap),
          debug: bool = Option(False, help=HelpMessages.debug),
          ):
     """
@@ -271,12 +279,13 @@ def main(subreddit: str = Argument(..., help=HelpMessages.subreddit),
                                                                      )
 
             for sub in submissions_generator:
-                logger.debug(f"New submission - created_utc: {sub.created_utc}")
+                logger.debug(f"New submission `{sub.full_link}` - created_utc: {sub.created_utc}")
+
                 # Fetch the submission data
                 submission_fetcher(sub, out_manager)
 
                 # Fetch the submission's comments
-                comments_fetcher(sub, out_manager, reddit_api)
+                comments_fetcher(sub, out_manager, reddit_api, comments_cap)
 
                 # Calculate the UTC seen range
                 utc_lower_bound, utc_upper_bound = utc_range_calculator(sub.created_utc,

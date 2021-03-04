@@ -7,19 +7,18 @@
 > Download all the text comments from a subreddit
 
 
-Use the
-script [subreddit_downloader.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/subreddit_downloader.py)
+Use the script [subreddit_downloader.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/subreddit_downloader.py)
 multiple times to download the data.<br>
-Then run the
-script [dataset_builder.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/dataset_builder.py) for
-create a unique dataset.
+Then run the script [dataset_builder.py](https://github.com/pistocop/subreddit-comments-dl/blob/master/src/dataset_builder.py) for create a unique
+dataset.
 
-🖱 More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/) and [medium](https://towardsdatascience.com/how-download-subreddit-comments-f79557c99170).
+🖱 More info on [website](https://www.pistocop.dev/posts/subreddit_downloader/)
+and [medium](https://towardsdatascience.com/how-download-subreddit-comments-f79557c99170).
 
 ## :rocket: Usage
 
-Basic usage to download submissions and relative comments from
-subreddit [AskReddit](https://www.reddit.com/r/AskReddit/) and [News](https://www.reddit.com/r/news/):
+Basic usage to download submissions and relative comments from subreddit [AskReddit](https://www.reddit.com/r/AskReddit/)
+and [News](https://www.reddit.com/r/news/):
 
 ```shell
 # Install the dependencies
@@ -89,13 +88,13 @@ Each row is a comment under a submission of a specific subreddit and `id` field 
 
 - _subreddit_: section of reddit website focused on a particular topic
 
-- _submission_: the post that appear in each subreddit. When you open a subreddit page, all the posts you see. Each
-  submission has a tree of _comments_
+- _submission_: the post that appear in each subreddit. When you open a subreddit page, all the posts you see. Each submission has a tree of _
+  comments_
 
 - _comment_: text wrote by a reddit user under a _submission_ inside a _subreddit_
     - The main goal of this repository is to gather the _comments_ belong to the _subreddit_
 
-## :writing_hand: Notes
+## :writing_hand: Notes and Q&A
 
 - Under the hood the script use [pushshift](https://pushshift.io/api-parameters/) to gather submissions id,
   and [praw](https://praw.readthedocs.io/en/latest/)
@@ -108,8 +107,18 @@ Each row is a comment under a submission of a specific subreddit and `id` field 
 - [?] Data empty CSV:
     - Sometimes we have an empty csv under `/data/<subreddit>/<timestamp>/comments/xxx.csv`
     - This behaviour is due of a batch of _submissions_ that don't have comments, you can check this opening the
-      `/data/<subreddit>/<timestamp>/submissions/xxx.csv` equivalent file (same `xxx.csv` name) and open the submission
-      link
+      `/data/<subreddit>/<timestamp>/submissions/xxx.csv` equivalent file (same `xxx.csv` name) and open the submission link
+- [?] The program stuck and don't run:
+    - Call the program with `--debug` flag to get in which submission the program is freezing
+    - Very probably the program is blocked on a submission that contains 10k> comments, and the praw API need to make a lot of requests to gather all
+      the data (thus require a lot of time).
+    - If you don't want to wait, or you want more control over the quantity of comments fetched per single submission, use the `--comments-cap`
+      parameter.
+    - If provided, the system requires new comments `comments_cap` times to the praw API, **and don't download all comments**.
+        - More high the value, more comments will be downloaded
+        - Set to 0 to download only the comments showed on the first page of the submission
+        - Set to 64 to be enough sure that the system will download a good amount of data
+        - Tune the parameter as your favor
 
 ```bash
 python src/subreddit_downloader.py --help
@@ -121,38 +130,42 @@ Arguments:
   SUBREDDIT  The subreddit name  [required]
 
 Options:
-  --output-dir TEXT               Optional output directory  [default:
-                                  ./data/]
+  --output-dir TEXT       Optional output directory  [default: ./data/]
+  --batch-size INTEGER    Request `batch_size` submission per time  [default:
+                          10]
 
-  --batch-size INTEGER            Request `batch_size` submission per time
-                                  [default: 10]
+  --laps INTEGER          How many times request `batch_size` reddit
+                          submissions  [default: 3]
 
-  --laps INTEGER                  How many times request `batch_size` reddit
-                                  submissions  [default: 3]
+  --reddit-id TEXT        Reddit client_id, visit https://github.com/reddit-
+                          archive/reddit/wiki/OAuth2  [required]
 
-  --reddit-id TEXT                Reddit client_id, visit
-                                  https://github.com/reddit-
-                                  archive/reddit/wiki/OAuth2  [required]
+  --reddit-secret TEXT    Reddit client_secret, visit
+                          https://github.com/reddit-archive/reddit/wiki/OAuth2
+                          [required]
 
-  --reddit-secret TEXT            Reddit client_secret, visit
-                                  https://github.com/reddit-
-                                  archive/reddit/wiki/OAuth2  [required]
+  --reddit-username TEXT  Reddit username, used for build the `user_agent`
+                          string, visit https://github.com/reddit-
+                          archive/reddit/wiki/API  [required]
 
-  --reddit-username TEXT          Reddit username, used for build the
-                                  `user_agent` string, visit
-                                  https://github.com/reddit-
-                                  archive/reddit/wiki/API  [required]
+  --utc-after TEXT        Fetch the submissions before this UTC date
+  --utc-before TEXT       Fetch the submissions before this UTC date
+  --comments-cap INTEGER  Some submissions have 1k> nested comments and stuck
+                          the praw API call.If provided, the system requires
+                          new comments `comments_cap` times to the praw
+                          API.`comments_cap` under the hood will be passed
+                          directly to `replace_more` function as `limit`
+                          parameter. For more info see the README and visit ht
+                          tps://asyncpraw.readthedocs.io/en/latest/code_overvi
+                          ew/other/commentforest.html#asyncpraw.models.comment
+                          _forest.CommentForest.replace_more.
 
-  --utc-after TEXT                Fetch the submissions after this UTC date
-  --utc-before TEXT               Fetch the submissions before this UTC date
-  --debug / --no-debug            Enable debug logging  [default: False]
-  --install-completion [bash|zsh|fish|powershell|pwsh]
-                                  Install completion for the specified shell.
-  --show-completion [bash|zsh|fish|powershell|pwsh]
-                                  Show completion for the specified shell, to
-                                  copy it or customize the installation.
+  --debug / --no-debug    Enable debug logging  [default: False]
+  --install-completion    Install completion for the current shell.
+  --show-completion       Show completion for the current shell, to copy it or
+                          customize the installation.
 
-  --help                          Show this message and exit.
+  --help                  Show this message and exit.
 ```
 
 ## :zzz: TODO
