@@ -150,7 +150,7 @@ Options:
 
   --utc-after TEXT        Fetch the submissions before this UTC date
   --utc-before TEXT       Fetch the submissions before this UTC date
-  --comments-cap INTEGER  Some submissions have 1k> nested comments and stuck
+  --comments-cap INTEGER  Some submissions have 10k> nested comments and stuck
                           the praw API call.If provided, the system requires
                           new comments `comments_cap` times to the praw
                           API.`comments_cap` under the hood will be passed
