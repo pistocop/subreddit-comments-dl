@@ -21,6 +21,8 @@ Basic usage to download submissions and relative comments from subreddit [AskRed
 and [News](https://www.reddit.com/r/news/):
 
 ```shell
+# Use python 3.8.5
+
 # Install the dependencies
 pip install -r requirements.txt
 
@@ -176,6 +178,7 @@ Options:
 
 **subreddit_downloader.py**
 
+- [ ] use async function if possible to gather more data concurrently 
 - [ ] load user credentials in `subreddit_downloader.py` from local config file
 - [ ] store/log the utc and human datetime
 - [ ] use case: download all data from X datetime until now
